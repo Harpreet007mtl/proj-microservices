@@ -20,13 +20,12 @@ jobs:
       - name: build and push user image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/user:latest ./src/script
-          docker push ${{ secrets.DOCKER_USERNAME }}/user:latest ./src/script
+          docker push ${{ secrets.DOCKER_USERNAME }}/user:latest 
     
       - name: build and push cart image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/cart:latest ./src/cart
-          docker push ${{ secrets.DOCKER_USERNAME }}/cart:latest ./src/cart
-
+          docker push ${{ secrets.DOCKER_USERNAME }}/cart:latest 
       - name: apply kubectl configs
         run: |
           kubectl apply -f .
