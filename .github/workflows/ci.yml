@@ -18,22 +18,22 @@ jobs:
      docker build -t user:latest ./script
      docker push -t  user:latest ./script
     
-  -name: build and push cart image
-   runs: |
+  - name: build and push cart image
+    runs: |
     docker build -t cart:latest ./cart
     docker push -t cart:latest ./cart
 
-  -name: apply kubectl configs
-   runs: |
+  - name: apply kubectl configs
+    runs: |
     kubectl apply -f .
 
-  -name: restart deployments
-   runs: |
+  - name: restart deployments
+    runs: |
     kubectl rollout restart deployment user-deployment
     kubectl rollout restart deployment cart-deployment
 
-  -name: verify
-   runs: |
+  - name: verify
+    runs: |
     kubectl get pods 
     kubectl get svc
 
