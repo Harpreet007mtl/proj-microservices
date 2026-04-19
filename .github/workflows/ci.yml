@@ -19,13 +19,13 @@ jobs:
   
       - name: build and push user image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/user:latest ./script
-          docker push -t ${{ secrets.DOCKER_USERNAME }}/user:latest ./script
+          docker build ${{ secrets.DOCKER_USERNAME }}/user:latest ./script
+          docker push ${{ secrets.DOCKER_USERNAME }}/user:latest ./script
     
       - name: build and push cart image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/cart:latest ./cart
-          docker push  -t ${{ secrets.DOCKER_USERNAME }}/cart:latest ./cart
+          docker build ${{ secrets.DOCKER_USERNAME }}/cart:latest ./cart
+          docker push ${{ secrets.DOCKER_USERNAME }}/cart:latest ./cart
 
       - name: apply kubectl configs
         run: |
