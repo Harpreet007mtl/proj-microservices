@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: user-deployment
+        image: arpreet007mtl@gmail.com/user-deployment
         imagePullPolicy: Never
         ports:
         - containerPort: 5000
