@@ -31,7 +31,8 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/cart:latest 
       - name: apply kubectl configs
         run: |
-          kubectl apply -f .
+          kubectl apply -f ./src/script/*yaml
+          kubectl apply -f ./src/cart/*yaml
 
       - name: restart deployments
         run: |
