@@ -1,0 +1,86 @@
+name: platform-deploy
+
+on: 
+  workflow_dispatch:
+    inputs:   
+      team:
+        description: 'team name'
+        options:
+          - cart-service
+          - user-service
+        required: true
+        type: choice
+
+      apps:
+        description: 'apps name'
+        required: true
+        type: string 
+
+      environment:
+        description: 'environment'
+        options:
+          - dev
+          - uat
+          - prod
+        required: true
+        type: choice
+
+jobs:
+  build-and-deploy:
+    name: build and deploy tag
+    runs-on: ubuntu-latest
+
+    env: 
+      IMAGE: ${{ input.apps }}:${{ github.sha }}
+
+    steps: 
+      - name: checkout code
+        uses: actions/checkout@v3
+      
+      # to fetch password from key vault
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          clientid: ${{ secrets.Azure_clientid }}
+          tenantid: ${{ secrets.Azure_tenantid }}
+          subscriptionid: ${{ secrets.Azure_subscriptionid }}
+
+      - name: pull secrets from Azure Key vault
+        run:  |
+          DB_PASSWORD=$(az keyvault secret show \
+          --vault-name my-prod-vault \
+          --name db-password \
+          --query value -o tsv)
+          echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
+
+      - name: Login to Dockerhub
+        run: echo "docker login -u ${{ secrets.docker_username }} -p ${{ docker_password }}"
+
+      - name: Build and push image
+        run: |
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Fetch image from Repository
+        run: docker pull $IMAGE
+
+      - name: deploy to kubernetes
+        run: |
+          kubectl apply -f deployment.yaml
+      
+      - name: Health check
+        run: |
+          kubectl get pods -n ${{ inputs.team }} -l app=${{ input.apps }}
+          kubectl log -l app=${{ inputs.team }} -n ${{ inputs.team }} --tail= 50
+          kubectl rollout status deployment/${{ inputs.apps }}
+      
+      - name: Notify Slack
+        if: always()
+        run: |
+          curl -X POST ${{ secrets.webhook }}\
+          -H 'content-type: application/json'
+          -d "{\"text\}": \"${{job.status}}: ${{ inputs.team }}/ ${{  input.apps }} ${{ inputs.environment }} ${{ inputs.team }}"
+
+
+
+
